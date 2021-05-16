@@ -1,7 +1,7 @@
 # cmake 版本
 cmake_minimum_required(VERSION 3.1)
 # 项目名
-project(TensorRTs)
+project(trt_proj)
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
     MESSAGE("\n===This is Linux,CMAKE_SYSTEM_NAME:${CMAKE_SYSTEM_NAME}")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
@@ -20,7 +20,7 @@ set(CMAKE_BUILD_TYPE Debug)
 #SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/bin)
 #设置库输出目录
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/bin/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/lib)
 
 #option 选项开关
 #启用后，将在中使用CUDA运行时库的静态版本CUDA_LIBRARIES。
@@ -32,8 +32,8 @@ option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Ofast -D_MWAITXINTRIN_H_INCLUDED")
 
-
-include_directories(${PROJECT_SOURCE_DIR}/include/)
+#include_directories(${PROJECT_SOURCE_DIR}/yolov4/include/)
+include_directories(${PROJECT_SOURCE_DIR}/yolov5/include/)
 include_directories(${PROJECT_SOURCE_DIR}/)
 
 # include and link dirs of cuda and tensorrt, you need adapt them if yours are different
@@ -85,26 +85,38 @@ message(STATUS "    OpenCV_DIR: ${OpenCV_DIR}")
 message(STATUS "    libraries: ${OpenCV_LIBS}")
 message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 message("===message=========================================")
-
-# DeepBlueOCR.so libraries
-set(LIB_NAME "yolov5")
-FILE(GLOB SRC_FILES "src/*.cpp")
-FILE(GLOB SRC_CU_FILES "src/*.cu")
-FILE(GLOB INC_FILES "include/*.h")
+#[[
+# yolov4.so libraries
+set(YOLOV4_LIB_NAME "yolov4")
+FILE(GLOB YOLOV4_SRC_FILES "yolov4/src/*.cpp")
+FILE(GLOB YOLOV4_SRC_CU_FILES "yolov4/src/*.cu")
+FILE(GLOB YOLOV4_INC_FILES "yolov4/include/*.h")
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-	cuda_add_library(${LIB_NAME} SHARED ${SRC_FILES}
-		${PROJECT_SOURCE_DIR}/yololayer.cu
-		)
+	cuda_add_library(${YOLOV4_LIB_NAME} SHARED ${YOLOV4_SRC_FILES}${YOLOV4_SRC_CU_FILES} ${YOLOV4_INC_FILES})
 	add_definitions(-O2 -pthread)
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
-	add_library(${LIB_NAME} ${SRC_FILES} ${SRC_CU_FILES} ${INC_FILES})
-	target_link_libraries(${LIB_NAME} nvinfer cudart nvinfer_plugin Threads::Threads)
+	add_library(${YOLOV4_LIB_NAME} ${YOLOV4_SRC_FILES} ${YOLOV4_SRC_CU_FILES} ${YOLOV4_INC_FILES})
+	target_link_libraries(${YOLOV4_LIB_NAME} nvinfer cudart nvinfer_plugin Threads::Threads)
 ENDIF()
+]]
 
+# yolov5.so libraries
+set(YOLOV5_LIB_NAME "yolov5")
+FILE(GLOB YOLOV5_SRC_FILES "yolov5/src/*.cpp")
+FILE(GLOB YOLOV5_SRC_CU_FILES "yolov5/src/*.cu")
+FILE(GLOB YOLOV5_INC_FILES "yolov5/include/*.h")
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	cuda_add_library(${YOLOV5_LIB_NAME} SHARED ${YOLOV5_SRC_FILES} ${YOLOV5_SRC_CU_FILES} ${YOLOV5_INC_FILES})
+	add_definitions(-O2 -pthread)
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
+	add_library(${YOLOV5_LIB_NAME} ${YOLOV5_SRC_FILES} ${YOLOV5_SRC_CU_FILES} ${YOLOV5_INC_FILES})
+	target_link_libraries(${YOLOV5_LIB_NAME} nvinfer cudart nvinfer_plugin Threads::Threads)
+ENDIF()
 #生成目标文件
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/main.cpp)
 
-target_link_libraries(${PROJECT_NAME} ${LIB_NAME})
+target_link_libraries(${PROJECT_NAME} ${YOLOV4_LIB_NAME})
+target_link_libraries(${PROJECT_NAME} ${YOLOV5_LIB_NAME})
 target_link_libraries(${PROJECT_NAME} nvinfer cudart ${CUDA_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
