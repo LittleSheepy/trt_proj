@@ -32,8 +32,9 @@ option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Ofast -D_MWAITXINTRIN_H_INCLUDED")
 
-#include_directories(${PROJECT_SOURCE_DIR}/yolov4/include/)
-include_directories(${PROJECT_SOURCE_DIR}/yolov5/include/)
+include_directories(${PROJECT_SOURCE_DIR}/include/common/)
+include_directories(${PROJECT_SOURCE_DIR}/include/yolov4/)
+include_directories(${PROJECT_SOURCE_DIR}/include/yolov5/)
 include_directories(${PROJECT_SOURCE_DIR}/)
 
 # include and link dirs of cuda and tensorrt, you need adapt them if yours are different
@@ -85,31 +86,33 @@ message(STATUS "    OpenCV_DIR: ${OpenCV_DIR}")
 message(STATUS "    libraries: ${OpenCV_LIBS}")
 message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 message("===message=========================================")
-#[[
+
+# common/
+FILE(GLOB COMMON_INC_FILES "include/common/*.h")
 # yolov4.so libraries
 set(YOLOV4_LIB_NAME "yolov4")
-FILE(GLOB YOLOV4_SRC_FILES "yolov4/src/*.cpp")
-FILE(GLOB YOLOV4_SRC_CU_FILES "yolov4/src/*.cu")
-FILE(GLOB YOLOV4_INC_FILES "yolov4/include/*.h")
+FILE(GLOB YOLOV4_SRC_FILES "src/yolov4/*.cpp")
+FILE(GLOB YOLOV4_SRC_CU_FILES "src/yolov4/*.cu")
+FILE(GLOB YOLOV4_INC_FILES "include/yolov4/*.h")
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-	cuda_add_library(${YOLOV4_LIB_NAME} SHARED ${YOLOV4_SRC_FILES}${YOLOV4_SRC_CU_FILES} ${YOLOV4_INC_FILES})
+	cuda_add_library(${YOLOV4_LIB_NAME} SHARED ${YOLOV4_SRC_FILES}${YOLOV4_SRC_CU_FILES} ${YOLOV4_INC_FILES} ${COMMON_INC_FILES})
 	add_definitions(-O2 -pthread)
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
-	add_library(${YOLOV4_LIB_NAME} ${YOLOV4_SRC_FILES} ${YOLOV4_SRC_CU_FILES} ${YOLOV4_INC_FILES})
+	add_library(${YOLOV4_LIB_NAME} ${YOLOV4_SRC_FILES} ${YOLOV4_SRC_CU_FILES} ${YOLOV4_INC_FILES} ${COMMON_INC_FILES})
 	target_link_libraries(${YOLOV4_LIB_NAME} nvinfer cudart nvinfer_plugin Threads::Threads)
 ENDIF()
-]]
+
 
 # yolov5.so libraries
 set(YOLOV5_LIB_NAME "yolov5")
-FILE(GLOB YOLOV5_SRC_FILES "yolov5/src/*.cpp")
-FILE(GLOB YOLOV5_SRC_CU_FILES "yolov5/src/*.cu")
-FILE(GLOB YOLOV5_INC_FILES "yolov5/include/*.h")
+FILE(GLOB YOLOV5_SRC_FILES "src/yolov5/*.cpp")
+FILE(GLOB YOLOV5_SRC_CU_FILES "src/yolov5/*.cu")
+FILE(GLOB YOLOV5_INC_FILES "include/yolov5/*.h")
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-	cuda_add_library(${YOLOV5_LIB_NAME} SHARED ${YOLOV5_SRC_FILES} ${YOLOV5_SRC_CU_FILES} ${YOLOV5_INC_FILES})
+	cuda_add_library(${YOLOV5_LIB_NAME} SHARED ${YOLOV5_SRC_FILES} ${YOLOV5_SRC_CU_FILES} ${YOLOV5_INC_FILES} ${COMMON_INC_FILES})
 	add_definitions(-O2 -pthread)
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
-	add_library(${YOLOV5_LIB_NAME} ${YOLOV5_SRC_FILES} ${YOLOV5_SRC_CU_FILES} ${YOLOV5_INC_FILES})
+	add_library(${YOLOV5_LIB_NAME} ${YOLOV5_SRC_FILES} ${YOLOV5_SRC_CU_FILES} ${YOLOV5_INC_FILES} ${COMMON_INC_FILES})
 	target_link_libraries(${YOLOV5_LIB_NAME} nvinfer cudart nvinfer_plugin Threads::Threads)
 ENDIF()
 #生成目标文件

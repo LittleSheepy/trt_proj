@@ -4,8 +4,9 @@
 #include <opencv2/opencv.hpp>
 //#include "logging.h"
 #include "common.h"
-#include "utils.h"
 #include "cuda_utils.h"
+#include "yolov4.h"
+#include "yolov4cfg.h"
 #include "yolov5.h"
 #include "yolov5cfg.h"
 
@@ -58,6 +59,45 @@ bool parse_args(int argc, char** argv, std::string& wts, std::string& engine, bo
 		return false;
 	}
 	return true;
+}
+
+int yolov4_main(int argc, char** argv) {
+	YOLOV4 * yolov4 = new YOLOV4();
+	yolov4->Init();
+	yolov4->LoadEngine();
+
+	cv::VideoCapture capture;
+	bool res = capture.open(0);
+	while (true) {
+		cv::Mat img;
+		bool red_res = capture.read(img);
+		auto res = yolov4->predict(img);
+		cout << img.cols << "," << img.rows << endl;
+
+		cv::Mat img_lab(img.rows, img.cols + 200, CV_8UC3);
+		//auto& res = batch_res[0];
+		std::cout << "size:" << res.size() << std::endl;
+		std::string str = "";
+		std::string label_list[] = { "0","1","2", "3","4", "5","6", "7","8", "9",
+							 "A", "b","C", "d","E", "F","J","h","P","t",
+							 "L", "U", "u","o", "_" };
+		for (size_t j = 0; j < res.size(); j++) {
+			cv::Rect r = get_rect(img, res[j].bbox);
+			cv::rectangle(img, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
+			cv::putText(img, std::to_string((int)res[j].class_id), cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
+			//cv::putText(img, std::string(label_list[(int)res[j].class_id]), cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
+			//str.append(std::string(label_list[(int)res[j].class_id]));
+		}
+		img.copyTo(img_lab(cv::Rect(0, 0, img.cols, img.rows)));
+
+		cv::putText(img_lab, str, cv::Point(650, 200), cv::FONT_HERSHEY_PLAIN, 3, cv::Scalar(0xFF, 0xFF, 0xFF), 4);
+		std::cout << "str:" << str << std::endl;
+		cv::imshow("ÉãÏñÍ· ", img_lab);
+		cv::waitKey(30);
+	}
+
+
+	return 1;
 }
 
 int yolov5_1(int argc, char** argv) {
@@ -133,5 +173,5 @@ int yolov5_1(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
-	yolov5_1(argc, argv);
+	yolov4_main(argc, argv);
 }
