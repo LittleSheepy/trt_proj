@@ -64,6 +64,20 @@ bool parse_args(int argc, char** argv, std::string& wts, std::string& engine, bo
 int yolov4_main(int argc, char** argv) {
 	YOLOV4 * yolov4 = new YOLOV4();
 	yolov4->Init();
+	if (argc == 2 && std::string(argv[1]) == "-s") {
+		IHostMemory* modelStream{ nullptr };
+		yolov4->APIToModel(BATCH_SIZE, &modelStream);
+		assert(modelStream != nullptr);
+		std::ofstream p("yolov4.engine", std::ios::binary);
+		if (!p) {
+			std::cerr << "could not open plan output file" << std::endl;
+			return -1;
+		}
+		p.write(reinterpret_cast<const char*>(modelStream->data()), modelStream->size());
+		modelStream->destroy();
+		return 0;
+	}
+
 	yolov4->LoadEngine();
 
 	cv::VideoCapture capture;

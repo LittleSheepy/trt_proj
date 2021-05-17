@@ -1,3 +1,14 @@
-build/*
+lib/*
 bin/*
+build/*
 *.engine
+*.wts
+lib/yolov4.lib
+lib/yolov4.lib
+lib/yolov4.pdb
+lib/yolov5.lib
+lib/yolov5.pdb
+lib/yolov4.lib
+lib/yolov4.lib
+lib/yolov5.pdb
+lib/yolov5.lib

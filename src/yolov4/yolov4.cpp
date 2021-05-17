@@ -92,6 +92,7 @@ namespace ObjDet {
 
 		// define each layer.
 		auto l0 = convBnMish(network, weightMap, *data, 32, 3, 1, 1, 0);
+		// CSP1  L0->CSP->L10
 		auto l1 = convBnMish(network, weightMap, *l0->getOutput(0), 64, 3, 2, 1, 1);
 		auto l2 = convBnMish(network, weightMap, *l1->getOutput(0), 64, 1, 1, 0, 2);
 		auto l3 = l1;
@@ -105,6 +106,7 @@ namespace ObjDet {
 		auto cat9 = network->addConcatenation(inputTensors9, 2);
 
 		auto l10 = convBnMish(network, weightMap, *cat9->getOutput(0), 64, 1, 1, 0, 10);
+		// CSP2  L10->CSP->L23
 		auto l11 = convBnMish(network, weightMap, *l10->getOutput(0), 128, 3, 2, 1, 11);
 		auto l12 = convBnMish(network, weightMap, *l11->getOutput(0), 64, 1, 1, 0, 12);
 		auto l13 = l11;
@@ -121,6 +123,7 @@ namespace ObjDet {
 		auto cat22 = network->addConcatenation(inputTensors22, 2);
 
 		auto l23 = convBnMish(network, weightMap, *cat22->getOutput(0), 128, 1, 1, 0, 23);
+		// CSP8  L23->CSP->L54
 		auto l24 = convBnMish(network, weightMap, *l23->getOutput(0), 256, 3, 2, 1, 24);
 		auto l25 = convBnMish(network, weightMap, *l24->getOutput(0), 128, 1, 1, 0, 25);
 		auto l26 = l24;
@@ -155,6 +158,7 @@ namespace ObjDet {
 		auto cat53 = network->addConcatenation(inputTensors53, 2);
 
 		auto l54 = convBnMish(network, weightMap, *cat53->getOutput(0), 256, 1, 1, 0, 54);
+		// CSP8  L54->CSP->L85
 		auto l55 = convBnMish(network, weightMap, *l54->getOutput(0), 512, 3, 2, 1, 55);
 		auto l56 = convBnMish(network, weightMap, *l55->getOutput(0), 256, 1, 1, 0, 56);
 		auto l57 = l55;
@@ -189,6 +193,7 @@ namespace ObjDet {
 		auto cat84 = network->addConcatenation(inputTensors84, 2);
 
 		auto l85 = convBnMish(network, weightMap, *cat84->getOutput(0), 512, 1, 1, 0, 85);
+		// CSP4  L85->CSP->L104
 		auto l86 = convBnMish(network, weightMap, *l85->getOutput(0), 1024, 3, 2, 1, 86);
 		auto l87 = convBnMish(network, weightMap, *l86->getOutput(0), 512, 1, 1, 0, 87);
 		auto l88 = l86;
@@ -212,11 +217,12 @@ namespace ObjDet {
 
 		auto l104 = convBnMish(network, weightMap, *cat103->getOutput(0), 1024, 1, 1, 0, 104);
 
-		// ---------
+		// 3 Neck---------
 		auto l105 = convBnLeaky(network, weightMap, *l104->getOutput(0), 512, 1, 1, 0, 105);
 		auto l106 = convBnLeaky(network, weightMap, *l105->getOutput(0), 1024, 3, 1, 1, 106);
 		auto l107 = convBnLeaky(network, weightMap, *l106->getOutput(0), 512, 1, 1, 0, 107);
 
+		// SPP
 		auto pool108 = network->addPoolingNd(*l107->getOutput(0), PoolingType::kMAX, DimsHW{ 5, 5 });
 		pool108->setPaddingNd(DimsHW{ 2, 2 });
 		pool108->setStrideNd(DimsHW{ 1, 1 });
@@ -239,8 +245,9 @@ namespace ObjDet {
 		auto l114 = convBnLeaky(network, weightMap, *cat113->getOutput(0), 512, 1, 1, 0, 114);
 		auto l115 = convBnLeaky(network, weightMap, *l114->getOutput(0), 1024, 3, 1, 1, 115);
 		auto l116 = convBnLeaky(network, weightMap, *l115->getOutput(0), 512, 1, 1, 0, 116);
-		auto l117 = convBnLeaky(network, weightMap, *l116->getOutput(0), 256, 1, 1, 0, 117);
 
+		auto l117 = convBnLeaky(network, weightMap, *l116->getOutput(0), 256, 1, 1, 0, 117);
+		// 上采样
 		float *deval = reinterpret_cast<float*>(malloc(sizeof(float) * 256 * 2 * 2));
 		for (int i = 0; i < 256 * 2 * 2; i++) {
 			deval[i] = 1.0;
@@ -252,19 +259,22 @@ namespace ObjDet {
 		deconv118->setNbGroups(256);
 		weightMap["deconv118"] = deconvwts118;
 
+		//
 		auto l119 = l85;
 		auto l120 = convBnLeaky(network, weightMap, *l119->getOutput(0), 256, 1, 1, 0, 120);
 
 		ITensor* inputTensors121[] = { l120->getOutput(0), deconv118->getOutput(0) };
 		auto cat121 = network->addConcatenation(inputTensors121, 2);
-
+		// 5*CBL
 		auto l122 = convBnLeaky(network, weightMap, *cat121->getOutput(0), 256, 1, 1, 0, 122);
 		auto l123 = convBnLeaky(network, weightMap, *l122->getOutput(0), 512, 3, 1, 1, 123);
 		auto l124 = convBnLeaky(network, weightMap, *l123->getOutput(0), 256, 1, 1, 0, 124);
 		auto l125 = convBnLeaky(network, weightMap, *l124->getOutput(0), 512, 3, 1, 1, 125);
 		auto l126 = convBnLeaky(network, weightMap, *l125->getOutput(0), 256, 1, 1, 0, 126);
+
 		auto l127 = convBnLeaky(network, weightMap, *l126->getOutput(0), 128, 1, 1, 0, 127);
 
+		// 上采样
 		Weights deconvwts128{ DataType::kFLOAT, deval, 128 * 2 * 2 };
 		IDeconvolutionLayer* deconv128 = network->addDeconvolutionNd(*l127->getOutput(0), 128, DimsHW{ 2, 2 }, deconvwts128, emptywts);
 		assert(deconv128);
@@ -276,12 +286,13 @@ namespace ObjDet {
 
 		ITensor* inputTensors131[] = { l130->getOutput(0), deconv128->getOutput(0) };
 		auto cat131 = network->addConcatenation(inputTensors131, 2);
-
+		// 5*CBL
 		auto l132 = convBnLeaky(network, weightMap, *cat131->getOutput(0), 128, 1, 1, 0, 132);
 		auto l133 = convBnLeaky(network, weightMap, *l132->getOutput(0), 256, 3, 1, 1, 133);
 		auto l134 = convBnLeaky(network, weightMap, *l133->getOutput(0), 128, 1, 1, 0, 134);
 		auto l135 = convBnLeaky(network, weightMap, *l134->getOutput(0), 256, 3, 1, 1, 135);
 		auto l136 = convBnLeaky(network, weightMap, *l135->getOutput(0), 128, 1, 1, 0, 136);
+
 		auto l137 = convBnLeaky(network, weightMap, *l136->getOutput(0), 256, 3, 1, 1, 137);
 		IConvolutionLayer* conv138 = network->addConvolutionNd(*l137->getOutput(0), 3 * (yolov4::CLASS_NUM + 5), DimsHW{ 1, 1 }, weightMap["module_list.138.Conv2d.weight"], weightMap["module_list.138.Conv2d.bias"]);
 		assert(conv138);
@@ -292,12 +303,13 @@ namespace ObjDet {
 
 		ITensor* inputTensors142[] = { l141->getOutput(0), l126->getOutput(0) };
 		auto cat142 = network->addConcatenation(inputTensors142, 2);
-
+		// 5*CBL
 		auto l143 = convBnLeaky(network, weightMap, *cat142->getOutput(0), 256, 1, 1, 0, 143);
 		auto l144 = convBnLeaky(network, weightMap, *l143->getOutput(0), 512, 3, 1, 1, 144);
 		auto l145 = convBnLeaky(network, weightMap, *l144->getOutput(0), 256, 1, 1, 0, 145);
 		auto l146 = convBnLeaky(network, weightMap, *l145->getOutput(0), 512, 3, 1, 1, 146);
 		auto l147 = convBnLeaky(network, weightMap, *l146->getOutput(0), 256, 1, 1, 0, 147);
+
 		auto l148 = convBnLeaky(network, weightMap, *l147->getOutput(0), 512, 3, 1, 1, 148);
 		IConvolutionLayer* conv149 = network->addConvolutionNd(*l148->getOutput(0), 3 * (yolov4::CLASS_NUM + 5), DimsHW{ 1, 1 }, weightMap["module_list.149.Conv2d.weight"], weightMap["module_list.149.Conv2d.bias"]);
 		assert(conv149);
@@ -314,18 +326,19 @@ namespace ObjDet {
 		auto l156 = convBnLeaky(network, weightMap, *l155->getOutput(0), 512, 1, 1, 0, 156);
 		auto l157 = convBnLeaky(network, weightMap, *l156->getOutput(0), 1024, 3, 1, 1, 157);
 		auto l158 = convBnLeaky(network, weightMap, *l157->getOutput(0), 512, 1, 1, 0, 158);
+
 		auto l159 = convBnLeaky(network, weightMap, *l158->getOutput(0), 1024, 3, 1, 1, 159);
 		IConvolutionLayer* conv160 = network->addConvolutionNd(*l159->getOutput(0), 3 * (yolov4::CLASS_NUM + 5), DimsHW{ 1, 1 }, weightMap["module_list.160.Conv2d.weight"], weightMap["module_list.160.Conv2d.bias"]);
 		assert(conv160);
 		// 161 is yolo layer
 
-		auto creator = getPluginRegistry()->getPluginCreator("YoloLayer_TRT", "1");
+		auto creator = getPluginRegistry()->getPluginCreator("YoloV4Layer_TRT", "1");
 		const PluginFieldCollection* pluginData = creator->getFieldNames();
 		IPluginV2 *pluginObj = creator->createPlugin("yololayer", pluginData);
 		ITensor* inputTensors_yolo[] = { conv138->getOutput(0), conv149->getOutput(0), conv160->getOutput(0) };
 		auto yolo = network->addPluginV2(inputTensors_yolo, 3, *pluginObj);
 
-		yolo->getOutput(0)->setName(OUTPUT_BLOB_NAME);
+		yolo->getOutput(0)->setName(OUTPUT_BLOB_NAME);		// OUTPUT_BLOB_NAME = "prob"
 		network->markOutput(*yolo->getOutput(0));
 
 		// Build engine

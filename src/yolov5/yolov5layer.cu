@@ -156,7 +156,7 @@ namespace nvinfer1
 
     const char* YoloLayerPlugin::getPluginType() const
     {
-        return "YoloLayer_TRT";
+        return "YoloV5Layer_TRT";
     }
 
     const char* YoloLayerPlugin::getPluginVersion() const
@@ -271,7 +271,7 @@ namespace nvinfer1
 
     const char* YoloPluginCreator::getPluginName() const
     {
-        return "YoloLayer_TRT";
+        return "YoloV5Layer_TRT";
     }
 
     const char* YoloPluginCreator::getPluginVersion() const

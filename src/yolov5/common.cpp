@@ -350,7 +350,7 @@ std::vector<std::vector<float>> getAnchors(std::map<std::string, Weights>& weigh
 }
 
 IPluginV2Layer* addYoLoLayer(INetworkDefinition *network, std::map<std::string, Weights>& weightMap, std::string lname, std::vector<IConvolutionLayer*> dets) {
-    auto creator = getPluginRegistry()->getPluginCreator("YoloLayer_TRT", "1");
+    auto creator = getPluginRegistry()->getPluginCreator("YoloV5Layer_TRT", "1");
     auto anchors = getAnchors(weightMap, lname);
     PluginField plugin_fields[2];
     int netinfo[4] = {yolov5::CLASS_NUM, yolov5::INPUT_W, yolov5::INPUT_H, yolov5::MAX_OUTPUT_BBOX_COUNT};

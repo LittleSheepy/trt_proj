@@ -131,7 +131,7 @@ namespace nvinfer1
 
     const char* YoloLayerPlugin::getPluginType() const
     {
-        return "YoloLayer_TRT";
+        return "YoloV4Layer_TRT";
     }
 
     const char* YoloLayerPlugin::getPluginVersion() const
@@ -243,7 +243,7 @@ namespace nvinfer1
 
     const char* YoloPluginCreator::getPluginName() const
     {
-            return "YoloLayer_TRT";
+            return "YoloV4Layer_TRT";
     }
 
     const char* YoloPluginCreator::getPluginVersion() const
@@ -271,5 +271,9 @@ namespace nvinfer1
         obj->setPluginNamespace(mNamespace.c_str());
         return obj;
     }
+	void YoloPluginCreator::setPluginNamespace(const char* libNamespace)
+	{
+		mNamespace = libNamespace;
+	}
 
 }

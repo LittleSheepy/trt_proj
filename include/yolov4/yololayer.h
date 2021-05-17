@@ -92,10 +92,7 @@ namespace nvinfer1
 
             IPluginV2IOExt* deserializePlugin(const char* name, const void* serialData, size_t serialLength) override;
 
-            void setPluginNamespace(const char* libNamespace) override
-            {
-                mNamespace = libNamespace;
-            }
+			void setPluginNamespace(const char* libNamespace) override;
 
             const char* getPluginNamespace() const override
             {
