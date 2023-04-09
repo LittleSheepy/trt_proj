@@ -5,15 +5,14 @@
 #include <string>
 #include "NvInfer.h"
 #include "yolov5cfg.h"
-
 namespace nvinfer1
 {
-    class YoloLayerPlugin : public IPluginV2IOExt
+    class YoloV5LayerPlugin : public IPluginV2IOExt
     {
     public:
-        YoloLayerPlugin(int classCount, int netWidth, int netHeight, int maxOut, const std::vector<yolov5::YoloKernel>& vYoloKernel);
-        YoloLayerPlugin(const void* data, size_t length);
-        ~YoloLayerPlugin();
+        YoloV5LayerPlugin(int classCount, int netWidth, int netHeight, int maxOut, const std::vector<yolov5::YoloKernel>& vYoloKernel);
+        YoloV5LayerPlugin(const void* data, size_t length);
+        ~YoloV5LayerPlugin();
 
         int getNbOutputs() const override
         {
@@ -76,12 +75,12 @@ namespace nvinfer1
         void** mAnchor;
     };
 
-    class YoloPluginCreator : public IPluginCreator
+    class YoloV5PluginCreator : public IPluginCreator
     {
     public:
-        YoloPluginCreator();
+		YoloV5PluginCreator();
 
-        ~YoloPluginCreator() override = default;
+        ~YoloV5PluginCreator() override = default;
 
         const char* getPluginName() const override;
 
@@ -108,7 +107,7 @@ namespace nvinfer1
         static PluginFieldCollection mFC;
         static std::vector<PluginField> mPluginAttributes;
     };
-    REGISTER_TENSORRT_PLUGIN(YoloPluginCreator);
+    REGISTER_TENSORRT_PLUGIN(YoloV5PluginCreator);
 };
 
 #endif 

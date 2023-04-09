@@ -12,7 +12,6 @@
 #include <opencv2/opencv.hpp>
 #include <dirent.h>
 #include "NvInfer.h"
-//#include "yololayer.h"
 #include "yolov4cfg.h"
 using namespace nvinfer1;
 using namespace yolov4;

@@ -15,10 +15,7 @@ namespace nvinfer1
 
             ~MishPlugin();
 
-            int getNbOutputs() const override
-            {
-                return 1;
-            }
+			int getNbOutputs() const override;
 
             Dims getOutputDimensions(int index, const Dims* inputs, int nbInputDims) override;
 

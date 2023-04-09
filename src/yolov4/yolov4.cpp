@@ -1,15 +1,15 @@
 /*******************************************************************
-** ÎÄ¼şÃû:	yolov4.cpp
-** °æ  È¨:	(C) littlesheepy 2020 - All Rights Reserved
-** ´´½¨ÈË:	littlesheepy
-** ÈÕ  ÆÚ:	12/02/2020
-** °æ  ±¾:	1.0
-** Ãè  Êö:
-** Ó¦  ÓÃ:
-**************************** ĞŞ¸Ä¼ÇÂ¼ ******************************
-** ĞŞ¸ÄÈË:
-** ÈÕ  ÆÚ:
-** Ãè  Êö:
+** æ–‡ä»¶å:	yolov4.cpp
+** ç‰ˆ  æƒ:	(C) littlesheepy 2020 - All Rights Reserved
+** åˆ›å»ºäºº:	littlesheepy
+** æ—¥  æœŸ:	12/02/2020
+** ç‰ˆ  æœ¬:	1.0
+** æ  è¿°:
+** åº”  ç”¨:
+**************************** ä¿®æ”¹è®°å½• ******************************
+** ä¿®æ”¹äºº:
+** æ—¥  æœŸ:
+** æ  è¿°:
 ********************************************************************/
 #include <fstream>
 #include <iostream>
@@ -23,7 +23,7 @@
 #include "utils.h"
 #include "cuda_runtime_api.h"
 #include "logging.h"
-#include "yololayer.h"
+#include "yolov4layer.h"
 #include "mish.h"
 #include "common.h"
 
@@ -87,7 +87,7 @@ namespace ObjDet {
 		ITensor* data = network->addInput(INPUT_BLOB_NAME, dt, Dims3{ 3, INPUT_H, INPUT_W });
 		assert(data);
 
-		std::map<std::string, Weights> weightMap = loadWeights("../yolov4.wts");
+		std::map<std::string, Weights> weightMap = loadWeights("F:/03weights/08trtx_wts/yolov4/yolov4.wts");
 		Weights emptywts{ DataType::kFLOAT, nullptr, 0 };
 
 		// define each layer.
@@ -247,7 +247,7 @@ namespace ObjDet {
 		auto l116 = convBnLeaky(network, weightMap, *l115->getOutput(0), 512, 1, 1, 0, 116);
 
 		auto l117 = convBnLeaky(network, weightMap, *l116->getOutput(0), 256, 1, 1, 0, 117);
-		// ÉÏ²ÉÑù
+		// ä¸Šé‡‡æ ·
 		float *deval = reinterpret_cast<float*>(malloc(sizeof(float) * 256 * 2 * 2));
 		for (int i = 0; i < 256 * 2 * 2; i++) {
 			deval[i] = 1.0;
@@ -274,7 +274,7 @@ namespace ObjDet {
 
 		auto l127 = convBnLeaky(network, weightMap, *l126->getOutput(0), 128, 1, 1, 0, 127);
 
-		// ÉÏ²ÉÑù
+		// ä¸Šé‡‡æ ·
 		Weights deconvwts128{ DataType::kFLOAT, deval, 128 * 2 * 2 };
 		IDeconvolutionLayer* deconv128 = network->addDeconvolutionNd(*l127->getOutput(0), 128, DimsHW{ 2, 2 }, deconvwts128, emptywts);
 		assert(deconv128);
@@ -366,7 +366,7 @@ namespace ObjDet {
 	int YOLOV4::LoadEngine() {
 		char *trtModelStream{ nullptr };
 		size_t size{ 0 };
-		std::ifstream file("../yolov4.engine", std::ios::binary);
+		std::ifstream file("F:/03weights/08trtx_wts/yolov4/yolov4.engine", std::ios::binary);
 		if (file.good()) {
 			file.seekg(0, file.end);
 			size = file.tellg();

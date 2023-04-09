@@ -1,15 +1,15 @@
 /*******************************************************************
-** ÎÄ¼şÃû:	yolov5.cpp
-** °æ  È¨:	(C) littlesheepy 2020 - All Rights Reserved
-** ´´½¨ÈË:	littlesheepy
-** ÈÕ  ÆÚ:	12/02/2020
-** °æ  ±¾:	1.0
-** Ãè  Êö:
-** Ó¦  ÓÃ:
-**************************** ĞŞ¸Ä¼ÇÂ¼ ******************************
-** ĞŞ¸ÄÈË:
-** ÈÕ  ÆÚ:
-** Ãè  Êö:
+** æ–‡ä»¶å:	yolov5.cpp
+** ç‰ˆ  æƒ:	(C) littlesheepy 2020 - All Rights Reserved
+** åˆ›å»ºäºº:	littlesheepy
+** æ—¥  æœŸ:	12/02/2020
+** ç‰ˆ  æœ¬:	1.0
+** æ  è¿°:
+** åº”  ç”¨:
+**************************** ä¿®æ”¹è®°å½• ******************************
+** ä¿®æ”¹äºº:
+** æ—¥  æœŸ:
+** æ  è¿°:
 ********************************************************************/
 #include <chrono>
 #include "cuda_runtime_api.h"
@@ -25,7 +25,7 @@ using namespace nvinfer1;
 using namespace yolov5;
 
 #include "yolov5layer.h"
-REGISTER_TENSORRT_PLUGIN(YoloPluginCreator);
+REGISTER_TENSORRT_PLUGIN(YoloV5PluginCreator);
 //extern std::string IMG_NAME;
 namespace ObjDet {
 	YOLOV5::YOLOV5()
@@ -253,7 +253,7 @@ namespace ObjDet {
 		char *trtModelStream{ nullptr };
 		size_t size{ 0 };
 		std::string engine_name = STR2(NET);
-		engine_name = "../yolov5" + engine_name + ".engine";
+		engine_name = "F:/03weights/08trtx_wts/yolov5/yolov5" + engine_name + ".engine";
 		std::ifstream file(engine_name, std::ios::binary);
 		if (file.good()) {
 			file.seekg(0, file.end);

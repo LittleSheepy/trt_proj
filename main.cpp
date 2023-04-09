@@ -10,6 +10,7 @@
 #include "yolov5.h"
 #include "yolov5cfg.h"
 
+#include "yolov5layer.h"
 using namespace nvinfer1;
 using namespace std;
 using namespace ObjDet;
@@ -68,7 +69,7 @@ int yolov4_main(int argc, char** argv) {
 		IHostMemory* modelStream{ nullptr };
 		yolov4->APIToModel(BATCH_SIZE, &modelStream);
 		assert(modelStream != nullptr);
-		std::ofstream p("yolov4.engine", std::ios::binary);
+		std::ofstream p("F:/03weights/08trtx_wts/yolov4/yolov4.engine", std::ios::binary);
 		if (!p) {
 			std::cerr << "could not open plan output file" << std::endl;
 			return -1;
@@ -106,7 +107,7 @@ int yolov4_main(int argc, char** argv) {
 
 		cv::putText(img_lab, str, cv::Point(650, 200), cv::FONT_HERSHEY_PLAIN, 3, cv::Scalar(0xFF, 0xFF, 0xFF), 4);
 		std::cout << "str:" << str << std::endl;
-		cv::imshow("ÉãÏñÍ· ", img_lab);
+		cv::imshow("æ‘„åƒå¤´ ", img_lab);
 		cv::waitKey(30);
 	}
 
@@ -114,7 +115,7 @@ int yolov4_main(int argc, char** argv) {
 	return 1;
 }
 
-int yolov5_1(int argc, char** argv) {
+int yolov5_main(int argc, char** argv) {
 	std::string wts_name = "";
 	std::string engine_name = "";
 	bool is_p6 = false;
@@ -123,7 +124,7 @@ int yolov5_1(int argc, char** argv) {
 	if (!parse_args(argc, argv, wts_name, engine_name, is_p6, gd, gw, img_dir)) {
 		std::cerr << "arguments not right!" << std::endl;
 		std::cerr << "./yolov5 -s [.wts] [.engine] [s/m/l/x/s6/m6/l6/x6 or c/c6 gd gw]  // serialize model to plan file" << std::endl;
-		std::cerr << "./yolov5 -d [.engine] ../samples  // deserialize plan file and run inference" << std::endl;
+		std::cerr << "./yolov5 -d yolov5s.engine ../samples  // deserialize plan file and run inference" << std::endl;
 		return -1;
 	}
 	YOLOV5 * yolov5 = new YOLOV5();
@@ -179,7 +180,7 @@ int yolov5_1(int argc, char** argv) {
 
 			cv::putText(img_lab, str, cv::Point(650, 200), cv::FONT_HERSHEY_PLAIN, 3, cv::Scalar(0xFF, 0xFF, 0xFF), 4);
 			std::cout << "str:" << str << std::endl;
-			cv::imshow("ÉãÏñÍ· ", img_lab);
+			cv::imshow("æ‘„åƒå¤´ ", img_lab);
 			cv::waitKey(30);
 		}
 	}
@@ -187,5 +188,5 @@ int yolov5_1(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
-	yolov4_main(argc, argv);
+	yolov5_main(argc, argv);
 }

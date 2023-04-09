@@ -13,7 +13,10 @@ namespace nvinfer1
     MishPlugin::~MishPlugin()
     {
     }
-
+	int MishPlugin::getNbOutputs() const
+    {
+        return 1;
+    }
     // create the plugin at runtime from a byte stream
     MishPlugin::MishPlugin(const void* data, size_t length)
     {
